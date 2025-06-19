@@ -110,7 +110,7 @@ const SignUpPage = () => {
             </div>
             <button
               type="submit"
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base"
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-700 to-[#228BE6] text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base"
             >
               Signup
             </button>
