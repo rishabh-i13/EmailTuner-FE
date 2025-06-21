@@ -10,6 +10,7 @@ import SignUpPage from './pages/auth/SignUpPage';
 // import Histry from './pages/History';
 import EmailGen from './pages/services/EmailGen';
 import EmailRegen from './pages/services/EmailRegen';
+import ForgotPassword from './pages/auth/ForgotPassword';
 // import './styles/index.css';
 
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             {/* <Route
               path="/history"
               element={

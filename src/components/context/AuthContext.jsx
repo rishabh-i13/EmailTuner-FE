@@ -62,6 +62,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Request Password Reset API call
+  const requestPasswordReset = async (email) => {
+    try {
+      const response = await axios.post('https://email-toner-backend.onrender.com/auth/forgot-password', {
+        email,
+      });
+      return response.data; // Returns { message: 'Password reset OTP sent to your email.' }
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to send OTP' };
+    }
+  };
+
+  // Verify Reset OTP API call
+  const verifyResetOtp = async (email, otp) => {
+    try {
+      const response = await axios.post('https://email-toner-backend.onrender.com/auth/verify-reset-otp', {
+        email,
+        otp,
+      });
+      return response.data; // Returns { message: 'OTP verified successfully. You may now reset your password.' }
+    } catch (error) {
+      throw error.response?.data || { message: 'OTP verification failed' };
+    }
+  };
+
+  // Reset Password API call
+  const resetPassword = async (email, newPassword) => {
+    try {
+      const response = await axios.post('https://email-toner-backend.onrender.com/auth/reset-password', {
+        email,
+        newPassword,
+      });
+      return response.data; // Returns { message: 'Password has been reset successfully.' }
+    } catch (error) {
+      throw error.response?.data || { message: 'Password reset failed' };
+    }
+  };
+
   // Logout function
   const logout = async () => {
     try {
@@ -82,7 +120,7 @@ export const AuthProvider = ({ children }) => {
   const isLoggedIn = () => !!user;
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, verifyOtp, logout, isLoggedIn }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, verifyOtp, requestPasswordReset, verifyResetOtp, resetPassword, logout, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );

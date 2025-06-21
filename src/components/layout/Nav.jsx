@@ -9,7 +9,7 @@ const Nav = () => {
   if (isLoggedIn()) return null;
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-[#f8fafc] p-4 flex justify-between items-center shadow-md z-50">
+    <nav className="fixed top-0 left-0 w-full bg-[#F0F8FF] p-4 flex justify-between items-center shadow-md z-50">
 
       {/* Logo */}
       <Link to="/" className="flex items-center">
