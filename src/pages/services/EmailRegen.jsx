@@ -20,7 +20,7 @@ const EmailRegen = () => {
 
   useEffect(() => {
     const fetchTones = async () => {
-      if (!token) return;
+      if (!token) return; // Skip fetch if no token, avoiding potential errors
       try {
         const response = await fetch(
           "https://email-toner-backend.onrender.com/tone/all",
@@ -32,18 +32,19 @@ const EmailRegen = () => {
         setTones([...data.tones, "Other"]); // Move "Other" to the end
       } catch (error) {
         console.error("Error fetching tones:", error);
+        setTones(["Friendly", "Professional", "Casual", "Other"]); // Fallback tones
       }
     };
     fetchTones();
   }, [token]);
 
   useEffect(() => {
-    const savedEmail = sessionStorage.getItem("originalEmail");
-    const savedTone = sessionStorage.getItem("tone");
-    const savedWords = sessionStorage.getItem("numberOfWords");
+    const savedEmail = sessionStorage.getItem("originalEmail") || "";
+    const savedTone = sessionStorage.getItem("tone") || "";
+    const savedWords = sessionStorage.getItem("numberOfWords") || "";
     if (savedEmail) setOriginalEmail(savedEmail);
     if (savedTone && tones.includes(savedTone)) setTone(savedTone);
-    if (savedWords) setNumberOfWords(savedWords);
+    if (savedWords) setNumberOfWords(savedWords); // Allow empty string as default
   }, [tones]);
 
   useEffect(() => {
@@ -107,10 +108,12 @@ const EmailRegen = () => {
       setIsFlipped(true);
     } catch (error) {
       console.error("Error generating email:", error);
+      toast.error("Failed to generate email. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleBack = () => {
     setIsFlipped(false);
     setGeneratedEmail(null);
@@ -118,8 +121,8 @@ const EmailRegen = () => {
 
   const handleCopy = () => {
     const emailText = `Subject: ${
-      generatedEmail.subject
-    }\n\n${generatedEmail.body.trim()}\n\n${generatedEmail.outro.trim()}`;
+      generatedEmail?.subject || ""
+    }\n\n${generatedEmail?.body?.trim() || ""}\n\n${generatedEmail?.outro?.trim() || ""}`;
     navigator.clipboard.writeText(emailText).then(() => {
       toast.success("Email copied to clipboard!", { autoClose: 3000 });
     });
@@ -277,7 +280,7 @@ const EmailRegen = () => {
         </div>
       </div>
       <ToastContainer
-        position="bottom-right"
+        position="top-right"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
