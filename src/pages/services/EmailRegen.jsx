@@ -70,6 +70,11 @@ const EmailRegen = () => {
       return;
     }
 
+    if (!numberOfWords || !numberOfWords.trim()) {
+      toast.error("Enter number of words.", { autoClose: 3000 });
+      return;
+    }
+
     const wordCount = parseInt(numberOfWords);
     if (isNaN(wordCount) || wordCount < 50 || wordCount > 400) {
       toast.error("Number of words must be between 50 and 400.", { autoClose: 3000 });
