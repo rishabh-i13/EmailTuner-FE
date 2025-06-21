@@ -70,15 +70,13 @@ const EmailRegen = () => {
       return;
     }
 
-    if (!numberOfWords || !numberOfWords.trim()) {
-      toast.error("Enter number of words.", { autoClose: 3000 });
-      return;
-    }
-
-    const wordCount = parseInt(numberOfWords);
-    if (isNaN(wordCount) || wordCount < 50 || wordCount > 400) {
-      toast.error("Number of words must be between 50 and 400.", { autoClose: 3000 });
-      return;
+    let wordCount = null;
+    if (numberOfWords && numberOfWords.trim()) {
+      wordCount = parseInt(numberOfWords);
+      if (isNaN(wordCount) || wordCount < 50 || wordCount > 400) {
+        toast.error("Number of words must be between 50 and 400.", { autoClose: 3000 });
+        return;
+      }
     }
 
     if (tone === "Other" && !customTone.trim()) {
@@ -90,7 +88,7 @@ const EmailRegen = () => {
     const payload = {
       originalEmail,
       tone: tone === "Other" ? customTone : tone,
-      numberOfWords: wordCount,
+      ...(wordCount !== null && { numberOfWords: wordCount }),
     };
     try {
       const response = await fetch(
@@ -113,7 +111,6 @@ const EmailRegen = () => {
       setIsLoading(false);
     }
   };
-
   const handleBack = () => {
     setIsFlipped(false);
     setGeneratedEmail(null);
