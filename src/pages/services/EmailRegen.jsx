@@ -2,6 +2,8 @@ import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../components/context/AuthContext";
 import { FiLoader, FiArrowLeft, FiCopy } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmailRegen = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -14,8 +16,6 @@ const EmailRegen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [tones, setTones] = useState([]);
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState("");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -54,26 +54,30 @@ const EmailRegen = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!isLoggedIn()) {
       navigate("/login");
       return;
     }
 
+    if (!originalEmail || !originalEmail.trim()) {
+      toast.error("Please enter an original email.", { autoClose: 3000 });
+      return;
+    }
+
     if (!tone || tone === "Select tone") {
-      setError("Please select a tone.");
+      toast.error("Please select a tone.", { autoClose: 3000 });
       return;
     }
 
     const wordCount = parseInt(numberOfWords);
     if (isNaN(wordCount) || wordCount < 50 || wordCount > 400) {
-      setError("Number of words must be between 50 and 400.");
+      toast.error("Number of words must be between 50 and 400.", { autoClose: 3000 });
       return;
     }
 
     if (tone === "Other" && !customTone.trim()) {
-      setError("Please enter a custom tone.");
+      toast.error("Please enter a custom tone.", { autoClose: 3000 });
       return;
     }
 
@@ -115,8 +119,7 @@ const EmailRegen = () => {
       generatedEmail.subject
     }\n\n${generatedEmail.body.trim()}\n\n${generatedEmail.outro.trim()}`;
     navigator.clipboard.writeText(emailText).then(() => {
-      setToast("Email copied to clipboard!");
-      setTimeout(() => setToast(""), 3000); // Toast disappears after 3 seconds
+      toast.success("Email copied to clipboard!", { autoClose: 3000 });
     });
   };
 
@@ -153,7 +156,7 @@ const EmailRegen = () => {
                   onChange={(e) => setOriginalEmail(e.target.value)}
                   placeholder="Enter your original email..."
                   required
-                  className="w-full h-[90%] p-4 bg-white/30 text-gray-800 placeholder-red-500 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-base resize-none"
+                  className="w-full h-[90%] p-4 bg-white/30 text-gray-800 placeholder-gray-500 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-base resize-none"
                   style={{ minHeight: "400px" }}
                 />
               </div>
@@ -208,12 +211,6 @@ const EmailRegen = () => {
                       className="w-full p-3 bg-white/30 text-gray-800 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-base"
                     />
                   </div>
-                  {error && (
-                    <p className="text-red-600 text-sm mt-1">{error}</p>
-                  )}
-                  {toast && (
-                    <p className="text-green-600 text-sm mt-1">{toast}</p>
-                  )}
                 </div>
                 <button
                   type="submit"
@@ -251,7 +248,7 @@ const EmailRegen = () => {
                         onClick={handleBack}
                         className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center text-base"
                       >
-                        <FiArrowLeft className="mr-1" size={16} /> Edit Details 
+                        <FiArrowLeft className="mr-1" size={16} /> Edit Details
                       </button>
                     </div>
                   </div>
@@ -277,6 +274,17 @@ const EmailRegen = () => {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
