@@ -111,6 +111,7 @@ const EmailRegen = () => {
       toast.error("Failed to generate email. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
+      toast.success("Email generated successfully!", { autoClose: 3000 });
     }
   };
 
@@ -280,7 +281,7 @@ const EmailRegen = () => {
         </div>
       </div>
       <ToastContainer
-        position="top-right"
+        position="bottom-right"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
