@@ -105,13 +105,38 @@ const EmailRegen = () => {
       );
       const data = await response.json();
       setGeneratedEmail(data);
+
+      // Save to DB (silent)
+      const savePayload = {
+        originalEmail,
+        rewrittenEmail: {
+          subject: data.subject || "",
+          body: data.body || "",
+          outro: data.outro || "",
+        },
+        tone: tone === "Other" ? customTone : tone,
+        recipientType: "Individual", // Default assumption, adjust if needed
+        occasion: "Email Rewrite", // Default assumption, adjust if needed
+        isGenerated: false,
+      };
+      console.log("Saving payload:", savePayload);
+      const saveResponse = await fetch("https://email-toner-backend.onrender.com/email/save", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(savePayload),
+      });
+      if (!saveResponse.ok) throw new Error("Failed to save email to DB");
+
       setIsFlipped(true);
+      toast.success("Email generated successfully!", { autoClose: 3000 });
     } catch (error) {
-      console.error("Error generating email:", error);
-      toast.error("Failed to generate email. Please try again.", { autoClose: 3000 });
+      console.error("Error:", error);
+      toast.error(error.message === "Failed to save email to DB" ? "Failed to save email. Please try again." : "Failed to generate email. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
-      toast.success("Email generated successfully!", { autoClose: 3000 });
     }
   };
 

@@ -7,7 +7,7 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import SignUpPage from './pages/auth/SignUpPage';
-// import Histry from './pages/History';
+import History from './pages/History';
 import EmailGen from './pages/services/EmailGen';
 import EmailRegen from './pages/services/EmailRegen';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -44,14 +44,14 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* <Route
+            <Route
               path="/history"
               element={
                 <ProtectedRoute>
                   <History />
                 </ProtectedRoute>
               }
-            /> */}
+            />
             <Route
               path="/email-gen"
               element={
