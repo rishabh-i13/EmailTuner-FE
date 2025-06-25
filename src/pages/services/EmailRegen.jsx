@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../components/context/AuthContext";
-import { FiLoader, FiArrowLeft, FiCopy } from "react-icons/fi";
+import { FiLoader, FiArrowLeft, FiCopy, FiSave } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -16,6 +16,7 @@ const EmailRegen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [tones, setTones] = useState([]);
+  const [isSaved, setIsSaved] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -105,36 +106,12 @@ const EmailRegen = () => {
       );
       const data = await response.json();
       setGeneratedEmail(data);
-
-      // Save to DB (silent)
-      const savePayload = {
-        originalEmail,
-        rewrittenEmail: {
-          subject: data.subject || "",
-          body: data.body || "",
-          outro: data.outro || "",
-        },
-        tone: tone === "Other" ? customTone : tone,
-        recipientType: "Individual", // Default assumption, adjust if needed
-        occasion: "Email Rewrite", // Default assumption, adjust if needed
-        isGenerated: false,
-      };
-      console.log("Saving payload:", savePayload);
-      const saveResponse = await fetch("https://email-toner-backend.onrender.com/email/save", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(savePayload),
-      });
-      if (!saveResponse.ok) throw new Error("Failed to save email to DB");
-
       setIsFlipped(true);
+      setIsSaved(false); // Reset save state when new email is generated
       toast.success("Email generated successfully!", { autoClose: 3000 });
     } catch (error) {
-      console.error("Error:", error);
-      toast.error(error.message === "Failed to save email to DB" ? "Failed to save email. Please try again." : "Failed to generate email. Please try again.", { autoClose: 3000 });
+      console.error("Error generating email:", error);
+      toast.error("Failed to generate email. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +120,7 @@ const EmailRegen = () => {
   const handleBack = () => {
     setIsFlipped(false);
     setGeneratedEmail(null);
+    setIsSaved(false); // Reset save state when going back
   };
 
   const handleCopy = () => {
@@ -152,6 +130,38 @@ const EmailRegen = () => {
     navigator.clipboard.writeText(emailText).then(() => {
       toast.success("Email copied to clipboard!", { autoClose: 3000 });
     });
+  };
+
+  const handleSave = async () => {
+    if (!generatedEmail || isSaved) return;
+    const savePayload = {
+      originalEmail,
+      rewrittenEmail: {
+        subject: generatedEmail.subject || "",
+        body: generatedEmail.body || "",
+        outro: generatedEmail.outro || "",
+      },
+      tone: tone === "Other" ? customTone : tone,
+      recipientType: "Individual", // Default assumption, adjust if needed
+      occasion: "Email Rewrite", // Default assumption, adjust if needed
+      isGenerated: false,
+    };
+    try {
+      const response = await fetch("https://email-toner-backend.onrender.com/email/save", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(savePayload),
+      });
+      if (!response.ok) throw new Error("Failed to save email to DB");
+      setIsSaved(true);
+      toast.success("Email saved successfully!", { autoClose: 3000 });
+    } catch (error) {
+      console.error("Error saving email:", error);
+      toast.error("Failed to save email. Please try again.", { autoClose: 3000 });
+    }
   };
 
   return (
@@ -280,6 +290,14 @@ const EmailRegen = () => {
                         className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center text-base"
                       >
                         <FiArrowLeft className="mr-1" size={16} /> Edit Details
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        disabled={isSaved}
+                        className={`px-3 py-2 ${isSaved ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"} text-white rounded-lg flex items-center text-base`}
+                        title={isSaved ? "Already saved" : "Save this email"}
+                      >
+                        <FiSave className="mr-1" size={16} /> {isSaved ? "Saved" : "Save"}
                       </button>
                     </div>
                   </div>
